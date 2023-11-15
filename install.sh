@@ -52,7 +52,7 @@ if [ $language == '1' ]; then
   echo "是否部署Selenium Docker容器？(y/n)"
   read -e run_webdriver
 else
-  echo "Start installing Apple_Auto backend"
+  echo "Start installing AppleAutoPro backend"
   echo "Please enter API URL (http://xxx.xxx)"
   read -e api_url
   echo "Please enter API Key"
@@ -88,20 +88,20 @@ if docker ps -a --format '{{.Names}}' | grep -q '^appleauto$'; then
     docker rm -f appleauto
 fi
 docker pull pplulee/appleautopro
-docker run -d --name=appleauto --log-opt max-size=1m --log-opt max-file=2 --restart=always --network=host -e API_URL=$api_url -e API_KEY=$api_key -e SYNC_TIME=$sync_time -e LANG=$language -v /var/run/docker.sock:/var/run/docker.sock pplulee/appleautopro
+docker run -d --name=appleautopro --log-opt max-size=1m --log-opt max-file=2 --restart=always --network=host -e API_URL=$api_url -e API_KEY=$api_key -e SYNC_TIME=$sync_time -e LANG=$language -v /var/run/docker.sock:/var/run/docker.sock pplulee/appleautopro
 if [ $language = "1" ]; then
   echo "安装完成，容器已启动"
-  echo "默认容器名：appleauto"
+  echo "默认容器名：appleautopro"
   echo "操作方法："
-  echo "停止容器：docker stop appleauto"
-  echo "重启容器：docker restart appleauto"
-  echo "查看容器日志：docker logs appleauto"
+  echo "停止容器：docker stop appleautopro"
+  echo "重启容器：docker restart appleautopro"
+  echo "查看容器日志：docker logs appleautopro"
 else
   echo "Installation completed, container started"
-  echo "Default container name: appleauto"
+  echo "Default container name: appleautopro"
   echo "Operation method:"
-  echo "Stop: docker stop appleauto"
-  echo "Restart: docker restart appleauto"
-  echo "Check status: docker logs appleauto"
+  echo "Stop: docker stop appleautopro"
+  echo "Restart: docker restart appleautopro"
+  echo "Check status: docker logs appleautopro"
 fi
 exit 0
