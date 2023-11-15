@@ -87,8 +87,8 @@ fi
 if docker ps -a --format '{{.Names}}' | grep -q '^appleauto$'; then
     docker rm -f appleauto
 fi
-docker pull pplulee/appleautopro
-docker run -d --name=appleautopro --log-opt max-size=1m --log-opt max-file=2 --restart=always --network=host -e API_URL=$api_url -e API_KEY=$api_key -e SYNC_TIME=$sync_time -e LANG=$language -v /var/run/docker.sock:/var/run/docker.sock pplulee/appleautopro
+docker pull pplulee/appleautopro_manager
+docker run -d --name=appleautopro --log-opt max-size=1m --log-opt max-file=2 --restart=unless-stopped --network=host -e API_URL=$api_url -e API_KEY=$api_key -e SYNC_TIME=$sync_time -e LANG=$language -v /var/run/docker.sock:/var/run/docker.sock pplulee/appleautopro_manager
 if [ $language = "1" ]; then
   echo "安装完成，容器已启动"
   echo "默认容器名：appleautopro"
