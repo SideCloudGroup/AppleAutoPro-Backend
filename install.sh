@@ -38,6 +38,11 @@ else
     systemctl enable docker && systemctl restart docker
     echo "Docker安装完成 | Docker installed"
 fi
+# 检查安装是否成功
+if ! docker >/dev/null 2>&1; then
+    echo "Docker安装失败，请检查错误信息 | Docker installation failed, please check the error message"
+    exit 1
+fi
 if [ $language == '1' ]; then
   echo "开始安装AppleAutoPro后端"
   echo "请输入API URL（前端域名，格式 http[s]://xxx.xxx）"
@@ -84,8 +89,8 @@ if [ "$run_webdriver" = "y" ]; then
     docker run -d --name=webdriver --log-opt max-size=1m --log-opt max-file=1 --shm-size="1g" --restart=always -e SE_NODE_MAX_SESSIONS=$webdriver_max_session -e SE_NODE_OVERRIDE_MAX_SESSIONS=true -e SE_SESSION_RETRY_INTERVAL=1 -e SE_START_VNC=false -p $webdriver_port:4444 selenium/standalone-chrome
     echo "Webdriver Docker容器部署完成 | Webdriver Docker container deployed"
 fi
-if docker ps -a --format '{{.Names}}' | grep -q '^appleauto$'; then
-    docker rm -f appleauto
+if docker ps -a --format '{{.Names}}' | grep -q '^appleautopro$'; then
+    docker rm -f appleautopro
 fi
 docker pull pplulee/appleautopro_manager
 docker run -d --name=appleautopro --log-opt max-size=1m --log-opt max-file=2 --restart=unless-stopped --network=host -e API_URL=$api_url -e API_KEY=$api_key -e SYNC_TIME=$sync_time -e LANG=$language -v /var/run/docker.sock:/var/run/docker.sock pplulee/appleautopro_manager
