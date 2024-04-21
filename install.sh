@@ -54,7 +54,20 @@ if [ $language == '1' ]; then
   if [ "$sync_time" = "" ]; then
       sync_time=15
   fi
-  echo "是否部署Selenium Docker容器？(y/n)"
+  echo "是否手动指定任务分批启动数量？"
+  echo "回车默认自动计算数量，填写0表示不分批启动，其余数字表示手动指定每批次的账号数"
+  read -e batch_num
+  if [ "$batch_num" = "" ]; then
+      batch_num=-1
+      batch_wait=180
+  else
+      echo "请输入任务分批启动间隔时间(单位:秒，默认180)"
+      read -e batch_wait
+      if [ "$batch_wait" = "" ]; then
+          batch_wait=180
+      fi
+  fi
+  echo "是否部署单机版Selenium Docker容器？(y/n)"
   read -e run_webdriver
 else
   echo "Start installing AppleAutoPro backend"
@@ -66,6 +79,19 @@ else
   read -e sync_time
   if [ "$sync_time" = "" ]; then
       sync_time=15
+  fi
+  echo "Manually specify the number of tasks to start in batches?"
+  echo "Press Enter to automatically calculate the number, fill in 0 to start without batching, and other numbers to manually specify the number of accounts per batch"
+  read -e batch_num
+  if [ "$batch_num" = "" ]; then
+      batch_num=-1
+      batch_wait=180
+  else
+      echo "Please enter the task batch start interval (unit: second, default 180)"
+      read -e batch_wait
+      if [ "$batch_wait" = "" ]; then
+          batch_wait=180
+      fi
   fi
   echo "Do you want to deploy Selenium Docker container? (y/n)"
   read -e run_webdriver
@@ -93,7 +119,7 @@ if docker ps -a --format '{{.Names}}' | grep -q '^appleautopro$'; then
     docker rm -f appleautopro
 fi
 docker pull pplulee/appleautopro_manager
-docker run -d --name=appleautopro --log-opt max-size=1m --log-opt max-file=2 --restart=unless-stopped --network=host -e API_URL=$api_url -e API_KEY=$api_key -e SYNC_TIME=$sync_time -e LANG=$language -v /var/run/docker.sock:/var/run/docker.sock pplulee/appleautopro_manager
+docker run -d --name=appleautopro --log-opt max-size=1m --log-opt max-file=2 --restart=unless-stopped --network=host -e API_URL=$api_url -e API_KEY=$api_key -e SYNC_TIME=$sync_time -e LANG=$language -e BATCH_NUM=$batch_num -e BATCH_WAIT=$batch_wait -v /var/run/docker.sock:/var/run/docker.sock pplulee/appleautopro_manager
 if [ $language = "1" ]; then
   echo "安装完成，容器已启动"
   echo "默认容器名：appleautopro"
