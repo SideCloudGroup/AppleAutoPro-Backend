@@ -21,13 +21,13 @@ if [ $language != "1" ] && [ $language != "2" ] && [ $language != "3" ]; then
 fi
 if [ $language == '1' ]; then
   echo "以全新方式管理你的 Apple ID，基于密保问题的自动化Apple ID检测&解锁程序程序"
-  echo "项目地址：github.com/pplulee/appleid_auto"
-  echo "项目交流TG群：@appleunblocker"
+  echo "产品官网：appleauto.pro"
+  echo "项目TG群：@AppleAutoPro_group"
   echo "==============================================================="
 else
   echo "Manage your Apple ID in a new way, an automated Apple ID detection & unlocking program based on security questions"
-  echo "Project address: github.com/pplulee/appleid_auto"
-  echo "Project discussion Telegram group: @appleunblocker"
+  echo "Official website: appleauto.pro"
+  echo "Project Telegram group: @AppleAutoPro_group"
   echo "==============================================================="
 fi
 if docker >/dev/null 2>&1; then
