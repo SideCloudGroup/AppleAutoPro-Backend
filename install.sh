@@ -1,4 +1,5 @@
 #!/bin/bash
+IFS=$'\n\t'
 # 定义颜色变量
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -16,6 +17,7 @@ geo_check() {
             isCN=true
             break
         elif echo "$url" | grep -q "$endpoint"; then
+            isCN=false
             break
         fi
     done
