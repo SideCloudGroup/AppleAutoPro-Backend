@@ -1,13 +1,11 @@
 #!/bin/bash
 IFS=$'\n\t'
-
 # Define color variables
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Only set erase character if running in a terminal
 if [ -t 0 ]; then stty erase ^H; fi
 
 echo -e "${GREEN}Checking if Docker is installed...${NC}"
