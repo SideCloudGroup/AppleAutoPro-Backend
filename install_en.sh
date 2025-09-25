@@ -8,6 +8,34 @@ NC='\033[0m' # No Color
 
 if [ -t 0 ]; then stty erase ^H; fi
 
+check_docker_permission() {
+  current_user=$(whoami)
+  if [ "$current_user" != "root" ]; then
+    if [ "$(uname)" = "Darwin" ]; then
+      echo -e "${BLUE}Detected system: ${YELLOW}macOS${NC}"
+      if ! docker info &>/dev/null; then
+        echo -e "${RED}Cannot connect to the Docker daemon${NC}"
+        echo -e "${YELLOW}Please check if Docker Desktop is installed and running!${NC}"
+        echo -e "${RED}If Docker Desktop is running, try running this script as root (sudo)!${NC}"
+        exit 1
+      fi
+    else
+      echo -e "${BLUE}Detected system: ${YELLOW}Linux${NC}"
+      if ! id -nG "$current_user" | grep -qw docker; then
+        echo -e "${RED}Current user is not root and not in the docker group, no permission to use docker${NC}"
+        echo -e "${YELLOW}Solution:${NC}"
+        echo -e "1.${BLUE}Add the current user to the docker group and re-login to the terminal${YELLOW} (sudo gpasswd -a <username> docker)${NC}"
+        echo -e "2.${BLUE}Run this script directly as root (sudo)!${NC}"
+        exit 1
+      fi
+    fi
+  else
+    echo -e "${BLUE}Current user is: ${YELLOW}root${NC}"
+  fi
+}
+
+check_docker_permission
+
 echo -e "${GREEN}Checking if Docker is installed...${NC}"
 if ! command -v docker &> /dev/null; then
     echo -e "${YELLOW}Docker not found, installing Docker...${NC}"

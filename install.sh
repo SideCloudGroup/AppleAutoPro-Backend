@@ -6,6 +6,35 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # 无颜色
 if [ -t 0 ]; then stty erase ^H; fi
+
+check_docker_permission() {
+  current_user=$(whoami)
+  if [ "$current_user" != "root" ]; then
+    if [ "$(uname)" = "Darwin" ]; then
+      echo -e "${BLUE}已检测到系统为${YELLOW}macOS${NC}"
+      if ! docker info &>/dev/null; then
+        echo -e "${RED}当前无法连接到Docker进程${NC}"
+        echo -e "${YELLOW}请检查是否已安装Docker Desktop以及Docker Desktop服务是否已启动！${NC}"
+        echo -e "${RED}如果您确信Docker Desktop已在运行，请尝试使用root(sudo)运行此脚本！${NC}"
+        exit 1
+      fi
+    else
+      echo -e "${BLUE}已检测到系统为${YELLOW}Linux${NC}"
+      if ! id -nG "$current_user" | grep -qw docker; then
+        echo -e "${RED}当前用户非root且不在docker用户组中，没有使用docker的权限${NC}"
+        echo -e "${YELLOW}解决方法：${NC}"
+        echo -e "1.${BLUE}将当前用户加入docker用户组并重新进入终端${YELLOW}(sudo gpasswd -a 用户名 docker)${NC}"
+        echo -e "2.${BLUE}直接使用root(sudo)运行此脚本！${NC}"
+        exit 1
+      fi
+    fi
+  else
+    echo -e "${BLUE}已检测到当前用户为${YELLOW}root${NC}"
+  fi
+}
+
+check_docker_permission
+
 geo_check() {
     api_list="https://blog.cloudflare.com/cdn-cgi/trace https://dash.cloudflare.com/cdn-cgi/trace https://developers.cloudflare.com/cdn-cgi/trace"
     ua="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/81.0"
