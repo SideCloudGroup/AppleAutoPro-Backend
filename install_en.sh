@@ -78,20 +78,6 @@ while [[ -z "${API_KEY:-}" ]]; do
     fi
 done
 
-while [[ -z "${REDIS_HOST:-}" ]]; do
-    read -p "Enter Redis host (e.g., 127.0.0.1): " REDIS_HOST
-    if [[ -z "$REDIS_HOST" ]]; then
-        echo -e "${RED}Redis host cannot be empty. Please try again.${NC}"
-    fi
-done
-
-while [[ -z "${REDIS_PORT:-}" ]]; do
-    read -p "Enter Redis port (default 6379): " REDIS_PORT
-    if [[ -z "$REDIS_PORT" ]]; then
-        echo -e "${RED}Redis port cannot be empty. Please try again.${NC}"
-    fi
-done
-
 read -p "Enter number of replicas (default 5): " REPLICAS
 REPLICAS="${REPLICAS:-5}"
 
@@ -106,8 +92,6 @@ services:
     environment:
       - API_URL=${API_URL}
       - API_KEY=${API_KEY}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
       - APP_LANG=en_us
     deploy:
       replicas: ${REPLICAS}

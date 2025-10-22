@@ -103,20 +103,6 @@ while [[ -z "$API_KEY" ]]; do
   fi
 done
 
-while [[ -z "$REDIS_HOST" ]]; do
-  read -p "请输入 Redis主机地址（通常为前端服务器IP）: " REDIS_HOST
-  if [[ -z "$REDIS_HOST" ]]; then
-    echo -e "${RED}Redis主机地址不能为空，请重新输入。${NC}"
-  fi
-done
-
-while [[ -z "$REDIS_PORT" ]]; do
-  read -p "请输入 Redis端口（通常为6379）: " REDIS_PORT
-  if [[ -z "$REDIS_PORT" ]]; then
-    echo -e "${RED}Redis端口不能为空，请重新输入。${NC}"
-  fi
-done
-
 read -p "请输入进程数量（默认5）: " REPLICAS
 REPLICAS=${REPLICAS:-5}
 
@@ -130,8 +116,6 @@ services:
     environment:
       - API_URL=${API_URL}
       - API_KEY=${API_KEY}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
       - APP_LANG=zh_cn
     deploy:
       replicas: ${REPLICAS}
