@@ -78,6 +78,13 @@ while [[ -z "${API_KEY:-}" ]]; do
     fi
 done
 
+while [[ -z "${NODENAME:-}" ]]; do
+    read -p "Nhập Tên Node (định danh cho node này): " NODENAME
+    if [[ -z "$NODENAME" ]]; then
+        echo -e "${RED}Tên Node Không Được Để Trống. Vui Lòng Thử Lại.${NC}"
+    fi
+done
+
 read -p "Nhập Số Lượng Replica (mặc định 5): " REPLICAS
 REPLICAS="${REPLICAS:-5}"
 
@@ -92,6 +99,7 @@ services:
     environment:
       - API_URL=${API_URL}
       - API_KEY=${API_KEY}
+      - NODENAME=${NODENAME}
       - APP_LANG=vi_vn
     deploy:
       replicas: ${REPLICAS}

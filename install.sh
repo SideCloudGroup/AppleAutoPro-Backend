@@ -103,6 +103,13 @@ while [[ -z "$API_KEY" ]]; do
   fi
 done
 
+while [[ -z "$NODENAME" ]]; do
+  read -p "请输入节点名称（用于标识当前节点）: " NODENAME
+  if [[ -z "$NODENAME" ]]; then
+    echo -e "${RED}节点名称不能为空，请重新输入。${NC}"
+  fi
+done
+
 read -p "请输入进程数量（默认5）: " REPLICAS
 REPLICAS=${REPLICAS:-5}
 
@@ -116,6 +123,7 @@ services:
     environment:
       - API_URL=${API_URL}
       - API_KEY=${API_KEY}
+      - NODENAME=${NODENAME}
       - APP_LANG=zh_cn
     deploy:
       replicas: ${REPLICAS}

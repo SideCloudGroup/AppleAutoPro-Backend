@@ -78,6 +78,13 @@ while [[ -z "${API_KEY:-}" ]]; do
     fi
 done
 
+while [[ -z "${NODENAME:-}" ]]; do
+    read -p "Enter Node Name (identifier for this node): " NODENAME
+    if [[ -z "$NODENAME" ]]; then
+        echo -e "${RED}Node Name cannot be empty. Please try again.${NC}"
+    fi
+done
+
 read -p "Enter number of replicas (default 5): " REPLICAS
 REPLICAS="${REPLICAS:-5}"
 
@@ -92,6 +99,7 @@ services:
     environment:
       - API_URL=${API_URL}
       - API_KEY=${API_KEY}
+      - NODENAME=${NODENAME}
       - APP_LANG=en_us
     deploy:
       replicas: ${REPLICAS}
