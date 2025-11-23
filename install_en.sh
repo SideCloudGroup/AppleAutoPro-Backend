@@ -79,9 +79,12 @@ while [[ -z "${API_KEY:-}" ]]; do
 done
 
 while [[ -z "${NODENAME:-}" ]]; do
-    read -p "Enter Node Name (identifier for this node): " NODENAME
+    read -p "Enter Node Name (identifier for this node, no non-English characters): " NODENAME
     if [[ -z "$NODENAME" ]]; then
         echo -e "${RED}Node Name cannot be empty. Please try again.${NC}"
+    elif [[ ! "$NODENAME" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
+        echo -e "${RED}Node Name cannot contain non-English characters. Please try again.${NC}"
+        NODENAME=""
     fi
 done
 
@@ -90,7 +93,6 @@ REPLICAS="${REPLICAS:-5}"
 
 # Generate docker-compose.yml
 cat > "$INSTALL_DIR/docker-compose.yml" <<EOF
-version: "3"
 services:
   backend:
     image: pplulee/appleautopro:v4

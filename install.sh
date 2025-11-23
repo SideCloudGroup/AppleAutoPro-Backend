@@ -107,9 +107,12 @@ while [[ -z "$API_KEY" ]]; do
 done
 
 while [[ -z "$NODENAME" ]]; do
-  read -p "请输入节点名称（用于标识当前节点）: " NODENAME
+  read -p "请输入节点名称（用于标识当前节点，不要出现非英文字符）: " NODENAME
   if [[ -z "$NODENAME" ]]; then
     echo -e "${RED}节点名称不能为空，请重新输入。${NC}"
+  elif [[ ! "$NODENAME" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
+    echo -e "${RED}节点名称不能包含非英文字符，请重新输入。${NC}"
+    NODENAME=""
   fi
 done
 
@@ -117,7 +120,6 @@ read -p "请输入进程数量（默认5）: " REPLICAS
 REPLICAS=${REPLICAS:-5}
 
 cat > "$INSTALL_DIR/docker-compose.yml" <<EOF
-version: "3"
 services:
   backend:
     image: pplulee/appleautopro:v4

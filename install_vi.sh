@@ -79,9 +79,12 @@ while [[ -z "${API_KEY:-}" ]]; do
 done
 
 while [[ -z "${NODENAME:-}" ]]; do
-    read -p "Nhập Tên Node (định danh cho node này): " NODENAME
+    read -p "Nhập Tên Node (định danh cho node này, không được chứa ký tự không phải tiếng Anh): " NODENAME
     if [[ -z "$NODENAME" ]]; then
         echo -e "${RED}Tên Node Không Được Để Trống. Vui Lòng Thử Lại.${NC}"
+    elif [[ ! "$NODENAME" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
+        echo -e "${RED}Tên Node Không Được Chứa Ký Tự Không Phải Tiếng Anh. Vui Lòng Thử Lại.${NC}"
+        NODENAME=""
     fi
 done
 
@@ -90,7 +93,6 @@ REPLICAS="${REPLICAS:-5}"
 
 # Tạo File docker-compose.yml
 cat > "$INSTALL_DIR/docker-compose.yml" <<EOF
-version: "3"
 services:
   backend:
     image: pplulee/appleautopro:v4
