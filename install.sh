@@ -7,6 +7,48 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # 无颜色
 if [ -t 0 ]; then stty erase ^H; fi
 
+# 解析命令行参数
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --api-url|-u)
+      API_URL="$2"
+      shift 2
+      ;;
+    --api-key|-k)
+      API_KEY="$2"
+      shift 2
+      ;;
+    --nodename|-n)
+      NODENAME="$2"
+      shift 2
+      ;;
+    --replicas|-r)
+      REPLICAS="$2"
+      shift 2
+      ;;
+    --install-dir|-d)
+      INSTALL_DIR="$2"
+      shift 2
+      ;;
+    --help|-h)
+      echo "用法: $0 [选项]"
+      echo "选项:"
+      echo "  -u, --api-url URL         API地址（必需）"
+      echo "  -k, --api-key KEY         API密钥（必需）"
+      echo "  -n, --nodename NAME       节点名称（必需）"
+      echo "  -r, --replicas NUM        进程数量（默认: 5）"
+      echo "  -d, --install-dir DIR     安装目录（默认: /opt/AppleAutoPro-Backend）"
+      echo "  -h, --help                显示此帮助信息"
+      exit 0
+      ;;
+    *)
+      echo -e "${RED}未知参数: $1${NC}"
+      echo "使用 --help 查看帮助信息"
+      exit 1
+      ;;
+  esac
+done
+
 check_docker_permission() {
   current_user=$(whoami)
   if [ "$current_user" != "root" ]; then
@@ -82,8 +124,7 @@ else
 fi
 
 DEFAULT_DIR="/opt/AppleAutoPro-Backend"
-read -p "请输入安装目录 [${DEFAULT_DIR}]: " INSTALL_DIR
-INSTALL_DIR=${INSTALL_DIR:-$DEFAULT_DIR}
+INSTALL_DIR="${INSTALL_DIR:-$DEFAULT_DIR}"
 echo -e "${GREEN}安装目录设置为: ${INSTALL_DIR}${NC}"
 
 if [ ! -d "$INSTALL_DIR" ]; then
@@ -92,21 +133,26 @@ if [ ! -d "$INSTALL_DIR" ]; then
     echo -e "${GREEN}目录 ${INSTALL_DIR} 创建完成。${NC}"
 fi
 
-while [[ -z "$API_URL" ]]; do
+while [[ -z "${API_URL:-}" ]]; do
   read -p "请输入网站地址（格式 http[s]://xxx.xxx）: " API_URL
   if [[ -z "$API_URL" ]]; then
     echo -e "${RED}网站地址不能为空，请重新输入。${NC}"
   fi
 done
 
-while [[ -z "$API_KEY" ]]; do
+while [[ -z "${API_KEY:-}" ]]; do
   read -p "请输入 API Key: " API_KEY
   if [[ -z "$API_KEY" ]]; then
     echo -e "${RED}API Key 不能为空，请重新输入。${NC}"
   fi
 done
 
-while [[ -z "$NODENAME" ]]; do
+if [[ -n "${NODENAME:-}" ]] && [[ ! "$NODENAME" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
+  echo -e "${RED}节点名称不能包含非英文字符，请重新输入。${NC}"
+  NODENAME=""
+fi
+
+while [[ -z "${NODENAME:-}" ]]; do
   read -p "请输入节点名称（用于标识当前节点，不要出现非英文字符）: " NODENAME
   if [[ -z "$NODENAME" ]]; then
     echo -e "${RED}节点名称不能为空，请重新输入。${NC}"
@@ -116,8 +162,10 @@ while [[ -z "$NODENAME" ]]; do
   fi
 done
 
-read -p "请输入进程数量（默认5）: " REPLICAS
-REPLICAS=${REPLICAS:-5}
+if [[ -z "${REPLICAS:-}" ]]; then
+  read -p "请输入进程数量（默认5）: " REPLICAS
+  REPLICAS=${REPLICAS:-5}
+fi
 
 cat > "$INSTALL_DIR/docker-compose.yml" <<EOF
 services:

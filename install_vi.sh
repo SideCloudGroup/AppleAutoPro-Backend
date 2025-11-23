@@ -8,6 +8,48 @@ NC='\033[0m' # Không Màu
 
 if [ -t 0 ]; then stty erase ^H; fi
 
+# Phân Tích Tham Số Dòng Lệnh
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --api-url|-u)
+      API_URL="$2"
+      shift 2
+      ;;
+    --api-key|-k)
+      API_KEY="$2"
+      shift 2
+      ;;
+    --nodename|-n)
+      NODENAME="$2"
+      shift 2
+      ;;
+    --replicas|-r)
+      REPLICAS="$2"
+      shift 2
+      ;;
+    --install-dir|-d)
+      INSTALL_DIR="$2"
+      shift 2
+      ;;
+    --help|-h)
+      echo "Cách Sử Dụng: $0 [TÙY CHỌN]"
+      echo "Tùy Chọn:"
+      echo "  -u, --api-url URL        URL API (bắt buộc)"
+      echo "  -k, --api-key KEY        Khóa API (bắt buộc)"
+      echo "  -n, --nodename NAME      Tên Node (bắt buộc)"
+      echo "  -r, --replicas NUM       Số lượng replica (mặc định: 5)"
+      echo "  -d, --install-dir DIR     Thư mục cài đặt (mặc định: /opt/AppleAutoPro-Backend)"
+      echo "  -h, --help               Hiển thị thông tin trợ giúp này"
+      exit 0
+      ;;
+    *)
+      echo -e "${RED}Tùy chọn không xác định: $1${NC}"
+      echo "Sử dụng --help để xem thông tin sử dụng"
+      exit 1
+      ;;
+  esac
+done
+
 kiem_tra_quyen_docker() {
   nguoi_dung_hien_tai=$(whoami)
   if [ "$nguoi_dung_hien_tai" != "root" ]; then
@@ -52,7 +94,6 @@ fi
 
 # Thư Mục Cài Đặt Mặc Định
 DEFAULT_DIR="/opt/AppleAutoPro-Backend"
-read -p "Nhập Thư Mục Cài Đặt [${DEFAULT_DIR}]: " INSTALL_DIR
 INSTALL_DIR="${INSTALL_DIR:-$DEFAULT_DIR}"
 echo -e "${GREEN}Thư Mục Cài Đặt Được Đặt Thành: ${INSTALL_DIR}${NC}"
 
@@ -78,6 +119,11 @@ while [[ -z "${API_KEY:-}" ]]; do
     fi
 done
 
+if [[ -n "${NODENAME:-}" ]] && [[ ! "$NODENAME" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
+  echo -e "${RED}Tên Node Không Được Chứa Ký Tự Không Phải Tiếng Anh. Vui Lòng Thử Lại.${NC}"
+  NODENAME=""
+fi
+
 while [[ -z "${NODENAME:-}" ]]; do
     read -p "Nhập Tên Node (định danh cho node này, không được chứa ký tự không phải tiếng Anh): " NODENAME
     if [[ -z "$NODENAME" ]]; then
@@ -88,10 +134,11 @@ while [[ -z "${NODENAME:-}" ]]; do
     fi
 done
 
-read -p "Nhập Số Lượng Replica (mặc định 5): " REPLICAS
-REPLICAS="${REPLICAS:-5}"
+if [[ -z "${REPLICAS:-}" ]]; then
+  read -p "Nhập Số Lượng Replica (mặc định 5): " REPLICAS
+  REPLICAS="${REPLICAS:-5}"
+fi
 
-# Tạo File docker-compose.yml
 cat > "$INSTALL_DIR/docker-compose.yml" <<EOF
 services:
   backend:

@@ -8,6 +8,48 @@ NC='\033[0m' # No Color
 
 if [ -t 0 ]; then stty erase ^H; fi
 
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --api-url|-u)
+      API_URL="$2"
+      shift 2
+      ;;
+    --api-key|-k)
+      API_KEY="$2"
+      shift 2
+      ;;
+    --nodename|-n)
+      NODENAME="$2"
+      shift 2
+      ;;
+    --replicas|-r)
+      REPLICAS="$2"
+      shift 2
+      ;;
+    --install-dir|-d)
+      INSTALL_DIR="$2"
+      shift 2
+      ;;
+    --help|-h)
+      echo "Usage: $0 [OPTIONS]"
+      echo "Options:"
+      echo "  -u, --api-url URL        API URL (required)"
+      echo "  -k, --api-key KEY        API Key (required)"
+      echo "  -n, --nodename NAME      Node Name (required)"
+      echo "  -r, --replicas NUM       Number of replicas (default: 5)"
+      echo "  -d, --install-dir DIR    Installation directory (default: /opt/AppleAutoPro-Backend)"
+      echo "  -h, --help               Show this help message"
+      exit 0
+      ;;
+    *)
+      echo -e "${RED}Unknown option: $1${NC}"
+      echo "Use --help for usage information"
+      exit 1
+      ;;
+  esac
+done
+
 check_docker_permission() {
   current_user=$(whoami)
   if [ "$current_user" != "root" ]; then
@@ -52,7 +94,6 @@ fi
 
 # Default installation directory
 DEFAULT_DIR="/opt/AppleAutoPro-Backend"
-read -p "Enter installation directory [${DEFAULT_DIR}]: " INSTALL_DIR
 INSTALL_DIR="${INSTALL_DIR:-$DEFAULT_DIR}"
 echo -e "${GREEN}Installation directory set to: ${INSTALL_DIR}${NC}"
 
@@ -78,6 +119,11 @@ while [[ -z "${API_KEY:-}" ]]; do
     fi
 done
 
+if [[ -n "${NODENAME:-}" ]] && [[ ! "$NODENAME" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
+  echo -e "${RED}Node Name cannot contain non-English characters. Please try again.${NC}"
+  NODENAME=""
+fi
+
 while [[ -z "${NODENAME:-}" ]]; do
     read -p "Enter Node Name (identifier for this node, no non-English characters): " NODENAME
     if [[ -z "$NODENAME" ]]; then
@@ -88,10 +134,11 @@ while [[ -z "${NODENAME:-}" ]]; do
     fi
 done
 
-read -p "Enter number of replicas (default 5): " REPLICAS
-REPLICAS="${REPLICAS:-5}"
+if [[ -z "${REPLICAS:-}" ]]; then
+  read -p "Enter number of replicas (default 5): " REPLICAS
+  REPLICAS="${REPLICAS:-5}"
+fi
 
-# Generate docker-compose.yml
 cat > "$INSTALL_DIR/docker-compose.yml" <<EOF
 services:
   backend:
