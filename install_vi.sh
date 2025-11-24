@@ -143,8 +143,7 @@ cat > "$INSTALL_DIR/docker-compose.yml" <<EOF
 services:
   backend:
     image: pplulee/appleautopro:v4
-    restart: always
-    network_mode: "host"
+    restart: unless-stopped
     environment:
       - API_URL=${API_URL}
       - API_KEY=${API_KEY}
